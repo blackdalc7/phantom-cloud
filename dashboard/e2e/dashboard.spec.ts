@@ -91,7 +91,13 @@ test("attacker seat: typed commands are answered and hostile markup stays inert"
     void dialog.dismiss();
   });
   await openDashboard(page);
+  // Sessions from earlier tests are replayed on load; wait for the new one to
+  // be selected and deployed so the command goes to the right shell.
+  const cards = page.getByTestId("session-card");
+  const before = await cards.count();
   await page.getByTestId("scenario-nmap_scan").click();
+  await expect(cards).toHaveCount(before + 1);
+  await expect(page.getByTestId("session-state").first()).toHaveText("deployed");
 
   const seat = page.getByLabel("attacker seat $");
   await expect(seat).toBeEnabled();
